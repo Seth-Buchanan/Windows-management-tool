@@ -44,11 +44,11 @@ $InvokeGPUpdateBlock = {
     param( [string]$ComputerName )
     function GPUpdateSystem  ([string] $ComputerName) { 
         Start-Sleep -Seconds 1
-	# Quiet option makes the result a boolean
-        Invoke-GPupdate -Computer $($ComputerName) -Force -boot -RandomDelayInMinutes 0 | Out-Null
-	Switch ($?) {
-	    0 {return "Invoked successfully"}
-	    1 {return "Invoked unsuccessfully"}
+        Invoke-GPupdate -Computer $($ComputerName) -Force -boot -RandomDelayInMinutes 0 -ErrorAction 'SilentlyContinue' | Out-Null
+	if ($?) {		# If no error
+	    return "GPUpdate Invoked on {0}" -f $ComputerName
+	} else {		# If error
+	    return "GPUpdate not Invoked on {0}" -f $ComputerName
 	}
     }
     # GPUpdateSystem entry point
