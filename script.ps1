@@ -1,7 +1,6 @@
 $StartReceiveJobs = {
     param ( [string[]] $ComputerNames, [ScriptBlock] $ScriptBlock)
     function runJobs ([string[]] $ComputerNames) {
-	# $Computers = @("www.google.nl", "localhost", "www.test.com")
 	foreach($computer in $ComputerNames){
 	    Start-Job -name $computer -ScriptBlock $ScriptBlock -ArgumentList $computer
 	}
@@ -41,7 +40,23 @@ $TestConnectionBlock = {
     checkSystem $ComputerName
 }
 
+$InvokeGPUpdateBlock = { 
+    param( [string]$ComputerName )
+    function GPUpdateSystem  ([string] $ComputerName) { 
+        Start-Sleep -Seconds 1
+	# Quiet option makes the result a boolean
+        Invoke-GPupdate -Computer $($ComputerName) -Force -boot -RandomDelayInMinutes 0 | Out-Null
+	Switch ($?) {
+	    0 {return "Invoked successfully"}
+	    1 {return "Invoked unsuccessfully"}
+	}
+    }
+    # GPUpdateSystem entry point
+    GPUpdateSystem $ComputerName
+}
+
 # Script entry point
 $ComputerNames = @("www.google.nl", "localhost", "www.test.com")
-$arugments = @($ComputerNames, $TestConnectionBlock)
+$arugments = @($ComputerNames, $InvokeGPUpdateBlock)
+# $arugments = @($ComputerNames, $StartReceiveJobs)
 Invoke-Command -ScriptBlock $StartReceiveJobs -ArgumentList $arugments
