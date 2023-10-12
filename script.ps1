@@ -1,11 +1,9 @@
 $StartReceiveJobs = {
-    param ( [string[]] $ComputerNames, [string] $ScriptBlock)
+    param ( [string[]] $ComputerNames, [ScriptBlock] $ScriptBlock)
     function runJobs ([string[]] $ComputerNames) {
 	# $Computers = @("www.google.nl", "localhost", "www.test.com")
-
-	foreach($computer in $Computer_Names){
-	    Start-Job -name $computer -ScriptBlock $ScriptBlock `
-	      -ArgumentList $computer
+	foreach($computer in $ComputerNames){
+	    Start-Job -name $computer -ScriptBlock $ScriptBlock -ArgumentList $computer
 	}
 
 	$runningcount = (get-job | where State -eq running).count
@@ -16,7 +14,7 @@ $StartReceiveJobs = {
 	    Start-Sleep -Seconds 1
 	}
 
-	$endResult = get-job | Receive-Job -Force -Wait #Finds the 
+	$endResult = get-job | Receive-Job -Force -Wait # Collects Return values
 	echo $endResult
 	# $endResult | ogv
 	
@@ -38,7 +36,7 @@ $TestConnectionBlock = {
 	} else {
 	    return "Connection not made with {0}" -f $ComputerName
 	}
-    } 
+    }
     # checkSystem entry point
     checkSystem $ComputerName
 }
