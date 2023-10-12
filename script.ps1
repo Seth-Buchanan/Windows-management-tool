@@ -109,13 +109,10 @@ $GetActivePoliciesBlock = {
 	param( [string]$ComputerName )
 	function GetActivePolicies ([string] $ComputerName) { 
  		Start-Sleep -Seconds 1
-		$Active_Policies = $((cmd /c gpresult /r /s $ComputerName /scope computer) |`
-		    Select-String -pattern "CT505|Wifi" )
+		$Active_Policies = $(cmd /c gpresult /r /s $ComputerName /scope computer)
 		if (-not ([string]::IsNullOrEmpty($Active_Policies))) {
-			foreach ($Policy in $Active_Policies) {
-				$Active_Policy_String += $($Policy.ToString()).Trim() + ", "
-			}
-			return "Active Policies of {0}: {1}" -f $ComputerName, $Active_Policy_String
+			return "Active Policies of {0}: `n{1}" `
+			    -f $ComputerName, $($Active_Policies | Out-String)
 		} else {
 			return "Active Policies of {0} Could not be found" -f $ComputerName
 		}
